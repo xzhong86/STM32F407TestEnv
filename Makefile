@@ -33,7 +33,7 @@ CUBE_INC += -I$(CUBE_PROJECT)/Inc
 
 com_objs = objs/startup.o objs/system.o
 #src_objs = $(patsubst src/%.c,objs/%.o,$(wildcard src/*.c))
-src_objs = objs/main.o objs/syscalls.o
+src_objs = objs/main.o objs/syscalls.o objs/stm32f4xx_it.o
 
 #CFLAGS += -mcpu=cortex-m3 -mthumb -D$(MCU)
 CFLAGS += -mcpu=cortex-m4 -mthumb -D$(MCU)
@@ -77,8 +77,9 @@ flash: $(BIN)
 	$(ST_FLASH) write $(BIN) 0x8000000
 
 link:   # to view source code
-	ln -s $(STM32F1_CUBE)/Drivers/STM32F1xx_HAL_Driver HAL_Driver
-	ln -s $(STM32F1_CUBE)/Drivers/CMSIS CMSIS
+	ln -s $(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver HAL_Driver
+	ln -s $(CUBE_ROOT)/Drivers/CMSIS CMSIS
+	ln -s $(startup.s)
 
 # start gdb server: st-util -m
 # start gdb: arm-none-eabi-gdb gpio.elf
