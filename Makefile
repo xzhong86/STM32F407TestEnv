@@ -33,7 +33,7 @@ CUBE_INC += -I$(CUBE_PROJECT)/Inc
 
 com_objs = objs/startup.o objs/system.o
 #src_objs = $(patsubst src/%.c,objs/%.o,$(wildcard src/*.c))
-src_objs = objs/main.o objs/syscalls.o objs/stm32f4xx_it.o
+src_objs = objs/main.o objs/syscalls.o objs/stm32f4xx_it.o objs/stm32f4xx_hal_msp.o
 
 #CFLAGS += -mcpu=cortex-m3 -mthumb -D$(MCU)
 CFLAGS += -mcpu=cortex-m4 -mthumb -D$(MCU)

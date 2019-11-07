@@ -37,31 +37,84 @@
 #define LEDx_GPIO_CLK_ENABLE(__INDEX__)   do { if((__INDEX__) == 0) LED2_GPIO_CLK_ENABLE();} while(0)
 #define LEDx_GPIO_CLK_DISABLE(__INDEX__)  (((__INDEX__) == 0) ? LED2_GPIO_CLK_DISABLE() : 0)
 
+#define bool _Bool
+#define true 1
+#define false 0
 
-/** @addtogroup STM32F1xx_HAL_Examples
-  * @{
-  */
-
-/** @addtogroup GPIO_IOToggle
-  * @{
-  */
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
 static GPIO_InitTypeDef  GPIO_InitStruct;
+static UART_HandleTypeDef UartHandle;
 
-/* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
+static void Error_Handler(void);
 
-/* Private functions ---------------------------------------------------------*/
 
-/**
-  * @brief  Main program
-  * @param  None
-  * @retval None
-  */
+static void initDAP_USART()
+{
+  UartHandle.Instance          = USART1;
+  UartHandle.Init.BaudRate     = 9600;
+  UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
+  UartHandle.Init.StopBits     = UART_STOPBITS_1;
+  UartHandle.Init.Parity       = UART_PARITY_NONE;
+  UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+  UartHandle.Init.Mode         = UART_MODE_TX_RX;
+  UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+
+  if (HAL_UART_Init(&UartHandle) != HAL_OK)
+    Error_Handler();
+}
+
+static void dap_puts(const char *str)
+{
+  //if(HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000)!= HAL_OK)
+  //if(HAL_UART_Receive(&UartHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE, 5000) != HAL_OK)
+  for (const char *p = str; *p; ++p) {
+    if (*p == '\n') {
+      if (HAL_UART_Transmit(&UartHandle, (uint8_t*)"\r", 1, 2000) != HAL_OK)
+        Error_Handler();
+    }
+    if (HAL_UART_Transmit(&UartHandle, (uint8_t*)p, 1, 2000) != HAL_OK)
+      Error_Handler();
+  }
+}
+
+static void initBSP_LED()
+{
+  /* -1- Enable GPIO Clock (to be able to program the configuration registers) */
+  LED2_GPIO_CLK_ENABLE();
+
+  /* -2- Configure IO in output push-pull mode to drive external LEDs */
+  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull  = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+
+  GPIO_InitStruct.Pin = LED2_PIN;
+  HAL_GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStruct);
+}
+
+static void led_set(bool on, bool toggle)
+{
+  if (toggle)
+    HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+  else if (on)
+    HAL_GPIO_WritePin(LED2_GPIO_PORT, LED2_PIN, GPIO_PIN_SET);
+  else
+    HAL_GPIO_WritePin(LED2_GPIO_PORT, LED2_PIN, GPIO_PIN_RESET);
+}
+
+static void delay(int ms) {  HAL_Delay(ms); }
+
+static void Error_Handler(void)
+{
+  while (1) {
+    led_set(true,  false);  delay(200);
+    led_set(false, false);  delay(200);
+    led_set(true,  false);  delay(200);
+    led_set(false, false);  delay(200);
+    delay(400);
+  }
+}
+
+
 int main(void)
 {
   /* This sample code shows how to use GPIO HAL API to toggle LED2 IO
@@ -82,24 +135,13 @@ int main(void)
   /* Configure the system clock to 64 MHz */
   SystemClock_Config();
   
-  /* -1- Enable GPIO Clock (to be able to program the configuration registers) */
-  LED2_GPIO_CLK_ENABLE();
+  initDAP_USART();
+  initBSP_LED();
 
-  /* -2- Configure IO in output push-pull mode to drive external LEDs */
-  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-
-  GPIO_InitStruct.Pin = LED2_PIN;
-  HAL_GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStruct);
-
-  /* -3- Toggle IO in an infinite loop */
-  while (1)
-  {
-    HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
-    //HAL_GPIO_WritePin(LED2_GPIO_PORT, LED2_PIN, GPIO_PIN_SET);
-    /* Insert delay 100 ms */
-    HAL_Delay(500);
+  while (1) {
+    dap_puts("hello world\n");
+    led_set(false, true);
+    delay(1000);
   }
 }
 
