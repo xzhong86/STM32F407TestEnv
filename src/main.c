@@ -1,22 +1,4 @@
-/**
-  ******************************************************************************
-  * @file    GPIO/GPIO_IOToggle/Src/main.c
-  * @author  MCD Application Team
-  * @brief   This example describes how to configure and use GPIOs through
-  *          the STM32F1xx HAL API.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+/* -*- c-basic-offset: 2 -*- */
 
 /* Includes ------------------------------------------------------------------*/
 
@@ -63,17 +45,25 @@ static void initDAP_USART()
     Error_Handler();
 }
 
+static void dap_putc(const char ch) {
+  //HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000) != HAL_OK
+  if (HAL_UART_Transmit(&UartHandle, (uint8_t*)&ch, 1, 2000) != HAL_OK)
+    Error_Handler();
+}
+int __io_putchar(int ch) { dap_putc(ch); }
+static char dap_getc() {
+  char buf[4];
+  //HAL_UART_Receive(&UartHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE, 5000) != HAL_OK
+  if (HAL_UART_Receive(&UartHandle, (uint8_t*)buf, 1, 2000) != HAL_OK)
+    Error_Handler();
+  return buf[0];
+}
 static void dap_puts(const char *str)
 {
-  //if(HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000)!= HAL_OK)
-  //if(HAL_UART_Receive(&UartHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE, 5000) != HAL_OK)
   for (const char *p = str; *p; ++p) {
-    if (*p == '\n') {
-      if (HAL_UART_Transmit(&UartHandle, (uint8_t*)"\r", 1, 2000) != HAL_OK)
-        Error_Handler();
-    }
-    if (HAL_UART_Transmit(&UartHandle, (uint8_t*)p, 1, 2000) != HAL_OK)
-      Error_Handler();
+    if (*p == '\n')
+      dap_putc('\r');
+    dap_putc(*p);
   }
 }
 
@@ -106,30 +96,17 @@ static void delay(int ms) {  HAL_Delay(ms); }
 static void Error_Handler(void)
 {
   while (1) {
-    led_set(true,  false);  delay(200);
-    led_set(false, false);  delay(200);
-    led_set(true,  false);  delay(200);
-    led_set(false, false);  delay(200);
-    delay(400);
+    led_set(true,  false);  delay(100);
+    led_set(false, false);  delay(100);
+    led_set(true,  false);  delay(100);
+    led_set(false, false);  delay(100);
+    delay(600);
   }
 }
 
 
 int main(void)
 {
-  /* This sample code shows how to use GPIO HAL API to toggle LED2 IO
-    in an infinite loop. */
-
-  /* STM32F103xB HAL library initialization:
-       - Configure the Flash prefetch
-       - Systick timer is configured by default as source of time base, but user 
-         can eventually implement his proper time base source (a general purpose 
-         timer for example or other time source), keeping in mind that Time base 
-         duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and 
-         handled in milliseconds basis.
-       - Set NVIC Group Priority to 4
-       - Low Level Initialization
-     */
   HAL_Init();
 
   /* Configure the system clock to 64 MHz */
