@@ -4,8 +4,6 @@ PREFIX = $(HOME)/local/bin/arm-none-eabi-
 
 ST_FLASH = $(HOME)/local/bin/st-flash
 
-# stm32f103c8t6
-#MCU = STM32F103xB
 # stm32f401ccub
 #MCU = STM32F401xC
 # stm32f407vet6
@@ -33,7 +31,7 @@ CUBE_INC += -I$(CUBE_PROJECT)/Inc
 
 com_objs = objs/startup.o objs/system.o
 #src_objs = $(patsubst src/%.c,objs/%.o,$(wildcard src/*.c))
-src_objs = objs/main.o objs/syscalls.o objs/stm32f4xx_it.o objs/stm32f4xx_hal_msp.o
+src_objs = objs/main.o objs/syscalls.o objs/irq_handlers.o objs/stm32f4xx_hal_msp.o
 
 #CFLAGS += -mcpu=cortex-m3 -mthumb -D$(MCU)
 CFLAGS += -mcpu=cortex-m4 -mthumb -D$(MCU)
