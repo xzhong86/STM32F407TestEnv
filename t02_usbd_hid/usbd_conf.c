@@ -44,6 +44,7 @@
   */
 /* Includes ------------------------------------------------------------------ */
 #include "main.h"
+#include <stdio.h>
 
 /* Private typedef ----------------------------------------------------------- */
 /* Private define ------------------------------------------------------------ */
@@ -72,10 +73,13 @@ static void SystemClockConfig_STOP(void);
 void HAL_PCD_MspInit(PCD_HandleTypeDef * hpcd)
 {
   GPIO_InitTypeDef GPIO_InitStruct;
+  printf("start PCD MspInit.\n");
 
   /* Configure USB FS GPIOs */
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
+  //__HAL_RCC_GPIOG_CLK_ENABLE();
+
+  printf("init gpio.\n");
 
   /* Configure DM DP Pins */
   GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
@@ -85,36 +89,39 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef * hpcd)
   GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* Configure VBUS Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  ///* Configure VBUS Pin */
+  //GPIO_InitStruct.Pin = GPIO_PIN_9;
+  //GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  //GPIO_InitStruct.Pull = GPIO_NOPULL;
+  //HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  // 
+  ///* Configure ID pin */
+  //GPIO_InitStruct.Pin = GPIO_PIN_10;
+  //GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+  //GPIO_InitStruct.Pull = GPIO_PULLUP;
+  //GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+  //HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* Configure ID pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  ///* Configure POWER_SWITCH IO pin */
+  //GPIO_InitStruct.Pin = GPIO_PIN_8;
+  //GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  //GPIO_InitStruct.Pull = GPIO_NOPULL;
+  //HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /* Configure POWER_SWITCH IO pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_8;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
-
+  printf("enable USB FS clock.\n");
   /* Enable USB FS Clock */
   __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
   /* Set USBFS Interrupt priority */
   HAL_NVIC_SetPriority(OTG_FS_IRQn, 5, 0);
 
+  printf("enable USB FS interrupt.\n");
   /* Enable USBFS Interrupt */
   HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
 
   if (hpcd->Init.low_power_enable == 1)
   {
+    printf("enable USB FS low power.\n");
     /* Enable EXTI Line 18 for USB wakeup */
     __HAL_USB_OTG_FS_WAKEUP_EXTI_CLEAR_FLAG();
     __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_RISING_EDGE();

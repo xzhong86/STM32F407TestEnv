@@ -20,7 +20,7 @@
 
 void Error_Handler(void);
 
-int __io_putchar(int ch) { dap_putc(ch); }
+int __io_putchar(int ch) { dap_putc_r(ch); }
 
 static void SystemClock_Config(void);
 
