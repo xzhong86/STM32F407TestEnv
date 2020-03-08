@@ -1,4 +1,5 @@
 # -*- makefile-gmake -*-
+# simple rules without dependence check
 
 PREFIX ?= $(HOME)/local/bin/arm-none-eabi-
 
