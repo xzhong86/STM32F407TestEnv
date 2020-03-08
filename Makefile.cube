@@ -12,20 +12,28 @@ startup.s = $(CUBE_CMSIS_ST)/Source/Templates/gcc/startup_stm32f407xx.s
 system.c  = $(CUBE_CMSIS_ST)/Source/Templates/system_stm32f4xx.c
 ld-script = $(CUBE_PROJECT)/SW4STM32/STM32F4-Discovery/STM32F407VGTx_FLASH.ld
 
-cube_hal_src  = $(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver/Src
-vpath %.c $(cube_hal_src)
+CUBE_SRC_DIR  =
+CUBE_SRC_DIR += $(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver
 
-cube_objs  = $(patsubst $(cube_hal_src)/%.c,cube_objs/%.o,$(wildcard $(cube_hal_src)/*.c))
-cube_objs := $(filter-out %template.o, $(cube_objs))
+ifdef USE_CUBE_USBD
+  CUBE_SRC_DIR += $(CUBE_ROOT)/Middlewares/ST/STM32_USB_Device_Library/Core
+  CUBE_SRC_DIR += $(CUBE_ROOT)/Middlewares/ST/STM32_USB_Device_Library/Class/HID
+endif
 
+cube_srcs = $(foreach dir,$(CUBE_SRC_DIR),$(wildcard $(dir)/Src/*.c))
+cube_objs = $(patsubst %.c,cube_objs/%.o,$(notdir $(cube_srcs)))
+vpath   %.c $(subst $(eval) ,:,$(dir $(cube_srcs))))
 
-CUBE_INC  = -I$(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver/Inc
+CUBE_INC  = $(foreach dir,$(CUBE_SRC_DIR),-I$(dir)/Inc)
+
 CUBE_INC += -I$(CUBE_CMSIS_ST)/Include
 CUBE_INC += -I$(CUBE_DRIVER)/CMSIS/Include
 CUBE_INC += -I$(CUBE_PROJECT)/Inc
 
-CFLAGS   += $(CUBE_INC) -I./src
 
+cube_objs := $(filter-out %template.o, $(cube_objs))
+
+CFLAGS   += $(CUBE_INC)
 
 $(LIB_CUBE): $(cube_objs)
 	$(AR) -r $@ $^
@@ -44,4 +52,5 @@ link_cube:   # to view source code
 	ln -s $(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver HAL_Driver
 	ln -s $(CUBE_ROOT)/Drivers/CMSIS CMSIS
 	ln -s $(startup.s)
+
 

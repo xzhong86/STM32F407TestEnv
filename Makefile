@@ -8,7 +8,7 @@ MCU = STM32F407xx
 src_objs = $(patsubst %.c,objs/%.o,$(wildcard *.c))
 
 CFLAGS += -mcpu=cortex-m4 -mthumb -D$(MCU)
-CFLAGS += -I./src -Os -O2 -g
+CFLAGS += -I. -Os -O2 -g
 
 TARGET = app.elf
 
