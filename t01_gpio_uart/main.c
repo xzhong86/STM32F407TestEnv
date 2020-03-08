@@ -3,6 +3,7 @@
 #define USE_HAL_DRIVER
 #include "stm32f4xx.h"
 
+#include "msp_uart.h"
 
 #define LED2_PIN                         GPIO_PIN_13
 #define LED2_GPIO_PORT                   GPIOC
@@ -16,52 +17,18 @@
 #define true 1
 #define false 0
 
-static GPIO_InitTypeDef  GPIO_InitStruct;
-static UART_HandleTypeDef UartHandle;
+
+void Error_Handler(void);
+
+int __io_putchar(int ch) { dap_putc(ch); }
 
 static void SystemClock_Config(void);
-static void Error_Handler(void);
 
-
-static void initDAP_USART()
-{
-  UartHandle.Instance          = USART1;
-  UartHandle.Init.BaudRate     = 9600;
-  UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
-  UartHandle.Init.StopBits     = UART_STOPBITS_1;
-  UartHandle.Init.Parity       = UART_PARITY_NONE;
-  UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-  UartHandle.Init.Mode         = UART_MODE_TX_RX;
-  UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
-
-  if (HAL_UART_Init(&UartHandle) != HAL_OK)
-    Error_Handler();
-}
-
-static void dap_putc(const char ch) {
-  //HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 5000) != HAL_OK
-  if (HAL_UART_Transmit(&UartHandle, (uint8_t*)&ch, 1, 2000) != HAL_OK)
-    Error_Handler();
-}
-int __io_putchar(int ch) { dap_putc(ch); }
-static char dap_getc() {
-  char buf[4];
-  //HAL_UART_Receive(&UartHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE, 5000) != HAL_OK
-  if (HAL_UART_Receive(&UartHandle, (uint8_t*)buf, 1, 2000) != HAL_OK)
-    Error_Handler();
-  return buf[0];
-}
-static void dap_puts(const char *str)
-{
-  for (const char *p = str; *p; ++p) {
-    if (*p == '\n')
-      dap_putc('\r');
-    dap_putc(*p);
-  }
-}
 
 static void initBSP_LED()
 {
+  GPIO_InitTypeDef  GPIO_InitStruct;
+
   /* -1- Enable GPIO Clock (to be able to program the configuration registers) */
   LED2_GPIO_CLK_ENABLE();
 
@@ -86,7 +53,7 @@ static void led_set(bool on, bool toggle)
 
 static void delay(int ms) {  HAL_Delay(ms); }
 
-static void Error_Handler(void)
+void Error_Handler(void)
 {
   while (1) {
     led_set(true,  false);  delay(100);

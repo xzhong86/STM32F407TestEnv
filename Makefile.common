@@ -6,7 +6,12 @@ PREFIX ?= $(HOME)/local/bin/arm-none-eabi-
 CC	= $(PREFIX)gcc
 AR      = $(PREFIX)ar
 
-com_objs = cube_objs/startup.o cube_objs/system.o
+com_objs  = cube_objs/startup.o cube_objs/system.o
+src_objs += objs/msp_uart.o objs/syscalls.o
+
+CFLAGS   += -I$(ROOT)/common
+
+vpath  %.c  $(ROOT)/common
 
 common_default: _mkdir $(TARGET)
 
