@@ -4,66 +4,18 @@
 #include "stm32f4xx.h"
 
 #include "msp_uart.h"
-
-#define LED2_PIN                         GPIO_PIN_13
-#define LED2_GPIO_PORT                   GPIOC
-#define LED2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()  
-#define LED2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOC_CLK_DISABLE()  
-
-#define LEDx_GPIO_CLK_ENABLE(__INDEX__)   do { if((__INDEX__) == 0) LED2_GPIO_CLK_ENABLE();} while(0)
-#define LEDx_GPIO_CLK_DISABLE(__INDEX__)  (((__INDEX__) == 0) ? LED2_GPIO_CLK_DISABLE() : 0)
+#include "board_bsp.h"
 
 #define bool _Bool
 #define true 1
 #define false 0
 
 
-void Error_Handler(void);
-
 int __io_putchar(int ch) { dap_putc_r(ch); }
 
 static void SystemClock_Config(void);
 
-
-static void initBSP_LED()
-{
-  GPIO_InitTypeDef  GPIO_InitStruct;
-
-  /* -1- Enable GPIO Clock (to be able to program the configuration registers) */
-  LED2_GPIO_CLK_ENABLE();
-
-  /* -2- Configure IO in output push-pull mode to drive external LEDs */
-  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-
-  GPIO_InitStruct.Pin = LED2_PIN;
-  HAL_GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStruct);
-}
-
-static void led_set(bool on, bool toggle)
-{
-  if (toggle)
-    HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
-  else if (on)
-    HAL_GPIO_WritePin(LED2_GPIO_PORT, LED2_PIN, GPIO_PIN_SET);
-  else
-    HAL_GPIO_WritePin(LED2_GPIO_PORT, LED2_PIN, GPIO_PIN_RESET);
-}
-
 static void delay(int ms) {  HAL_Delay(ms); }
-
-void Error_Handler(void)
-{
-  while (1) {
-    led_set(true,  false);  delay(100);
-    led_set(false, false);  delay(100);
-    led_set(true,  false);  delay(100);
-    led_set(false, false);  delay(100);
-    delay(600);
-  }
-}
-
 
 int main(void)
 {
@@ -77,7 +29,7 @@ int main(void)
 
   while (1) {
     dap_puts("hello world\n");
-    led_set(false, true);
+    bsp_led_set(false, true);
     delay(1000);
   }
 }

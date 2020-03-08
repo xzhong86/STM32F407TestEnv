@@ -45,6 +45,7 @@
 /* Includes ------------------------------------------------------------------ */
 #include "main.h"
 #include "msp_uart.h"
+#include "board_bsp.h"
 #include <stdio.h>
 
 /* Private typedef ----------------------------------------------------------- */
@@ -59,7 +60,7 @@ extern PCD_HandleTypeDef hpcd;
 /* Private function prototypes ----------------------------------------------- */
 
 /* Private functions --------------------------------------------------------- */
-int __io_putchar(int ch) { dap_putc(ch); }
+int __io_putchar(int ch) { dap_putc_r(ch); }
 
 /**
   * @brief  Main program
@@ -74,7 +75,8 @@ int main(void)
   /* Configure the System clock to have a frequency of 100 MHz */
   SystemClock_Config();
 
-  initDAP_USART();
+  initBSP_LED();
+  initDAP_USART(); 
   printf("finish uart init.\n");
  
   /* Init Device Library */
@@ -96,10 +98,6 @@ int main(void)
     //BSP_LED_Toggle(LED1);
     HAL_Delay(100);
   }
-}
-void Error_Handler(void)
-{
-  while (1) { HAL_Delay(100); }
 }
 
 void SystemClock_Config(void)

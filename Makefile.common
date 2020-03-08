@@ -7,7 +7,7 @@ CC	= $(PREFIX)gcc
 AR      = $(PREFIX)ar
 
 com_objs  = cube_objs/startup.o cube_objs/system.o
-src_objs += objs/msp_uart.o objs/syscalls.o
+src_objs += objs/msp_uart.o objs/board_bsp.o objs/syscalls.o
 
 CFLAGS   += -I$(ROOT)/common
 
