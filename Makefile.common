@@ -1,0 +1,33 @@
+# -*- makefile-gmake -*-
+
+PREFIX ?= $(HOME)/local/bin/arm-none-eabi-
+
+CC	= $(PREFIX)gcc
+AR      = $(PREFIX)ar
+
+com_objs = cube_objs/startup.o cube_objs/system.o
+
+common_default: _mkdir $(TARGET)
+
+%.elf : $(com_objs) $(src_objs) cube_objs/libcube.a
+	$(PREFIX)gcc $(CFLAGS) -T $(ld-script) -o $@ $^
+
+objs/%.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.dump : %.elf
+	$(PREFIX)objdump -D $< > $@
+
+%.bin : %.elf
+	$(PREFIX)objcopy -O binary $< $@
+
+
+.PHONY: clean
+clean:
+	rm -rf objs/ cube_objs/ *.elf *.bin *.dump
+_mkdir:
+	mkdir -p objs cube_objs
+

@@ -1,0 +1,47 @@
+# -*- makefile-gmake -*-
+
+CUBE_ROOT   ?= $(HOME)/work/geek/stm32/stm32cube/STM32Cube_FW_F4_V1.24.0
+STM32_TYPE  ?= STM32F4xx
+LIB_CUBE    ?= cube_objs/libcube.a
+
+CUBE_DRIVER  = $(CUBE_ROOT)/Drivers
+CUBE_PROJECT = $(CUBE_ROOT)/Projects/STM32F4-Discovery/Templates
+
+CUBE_CMSIS_ST  = $(CUBE_DRIVER)/CMSIS/Device/ST/$(STM32_TYPE)
+startup.s = $(CUBE_CMSIS_ST)/Source/Templates/gcc/startup_stm32f407xx.s
+system.c  = $(CUBE_CMSIS_ST)/Source/Templates/system_stm32f4xx.c
+ld-script = $(CUBE_PROJECT)/SW4STM32/STM32F4-Discovery/STM32F407VGTx_FLASH.ld
+
+cube_hal_src  = $(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver/Src
+vpath %.c $(cube_hal_src)
+
+cube_objs  = $(patsubst $(cube_hal_src)/%.c,cube_objs/%.o,$(wildcard $(cube_hal_src)/*.c))
+cube_objs := $(filter-out %template.o, $(cube_objs))
+
+
+CUBE_INC  = -I$(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver/Inc
+CUBE_INC += -I$(CUBE_CMSIS_ST)/Include
+CUBE_INC += -I$(CUBE_DRIVER)/CMSIS/Include
+CUBE_INC += -I$(CUBE_PROJECT)/Inc
+
+CFLAGS   += $(CUBE_INC) -I./src
+
+
+$(LIB_CUBE): $(cube_objs)
+	$(AR) -r $@ $^
+
+cube_objs/%.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+cube_objs/startup.o : $(startup.s)
+	$(CC) $(CFLAGS) -c -o $@ $<
+cube_objs/system.o : $(system.c)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+
+.PHONY: link_cube
+link_cube:   # to view source code
+	ln -s $(CUBE_DRIVER)/$(STM32_TYPE)_HAL_Driver HAL_Driver
+	ln -s $(CUBE_ROOT)/Drivers/CMSIS CMSIS
+	ln -s $(startup.s)
+

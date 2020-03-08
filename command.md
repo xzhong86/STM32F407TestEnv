@@ -15,3 +15,6 @@
   * `openocd -f openocd.cfg -c "program gpio.elf ; exit"` one line flash.
 
 
+## Work with st-flash
+  * `st-flash write xxx.bin 0x8000000` to flash
+
