@@ -1,16 +1,9 @@
 /* -*- c-basic-offset: 2 -*- */
 
-/* Includes ------------------------------------------------------------------*/
+#define USE_HAL_DRIVER
+#include "stm32f4xx.h"
 
-#ifdef STM32F103xB
-# include "stm32f1xx_hal.h"
-#endif
-#if defined STM32F401xC || defined STM32F407xx
-# define USE_HAL_DRIVER
-# include "stm32f4xx.h"
-//# include "stm32f4xx_hal.h"
-#endif
- 
+
 #define LED2_PIN                         GPIO_PIN_13
 #define LED2_GPIO_PORT                   GPIOC
 #define LED2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()  

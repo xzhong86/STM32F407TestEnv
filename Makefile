@@ -1,23 +1,18 @@
 # -*- makefile-gmake -*-
-# zpzhong, stm32 simple project
+# zpzhong, makefile template
 
-# stm32f407vet6
+ROOT ?= ..
+
 MCU = STM32F407xx
 
-#src_objs = $(patsubst src/%.c,objs/%.o,$(wildcard src/*.c))
-src_objs = objs/main.o objs/syscalls.o objs/irq_handlers.o objs/stm32f4xx_hal_msp.o
+src_objs = $(patsubst %.c,objs/%.o,$(wildcard *.c))
 
 CFLAGS += -mcpu=cortex-m4 -mthumb -D$(MCU)
 CFLAGS += -I./src -Os -O2 -g
 
-TARGET = gpio.elf
+TARGET = app.elf
 
-include Makefile.common
-include Makefile.cube
+include $(ROOT)/Makefile.common
+include $(ROOT)/Makefile.cube
 
-
-
-# start gdb server: st-util -m
-# start gdb: arm-none-eabi-gdb gpio.elf
-# connect:   (gdb) target ext localhost:4242
 

@@ -16,5 +16,7 @@
 
 
 ## Work with st-flash
-  * `st-flash write xxx.bin 0x8000000` to flash
+  * `st-flash write xxx.bin 0x8000000` to flash binary
+  * `st-util -m` to start gdb server
+  * `arm-none-eabi-gdb -ex 'target ext localhost:4242' gpio.elf` connect to target.
 
