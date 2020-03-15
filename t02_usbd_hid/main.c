@@ -34,19 +34,24 @@ int main(void)
   USBD_Start(&USBD_Device); 
 
   printf("finish init. go into loop.\n");
-  HID_Buffer[0] = 0;
-  HID_Buffer[1] = 5;
-  HID_Buffer[2] = 5;
-  HID_Buffer[3] = 0;
+  report_mouse_t mouse;
+  mouse.buttons = 0;
+  mouse.x = 5;
+  mouse.y = 5;
+  mouse.v = 0;
+  mouse.h = 0;
+  printf("send HID report\n");
+  USBD_HID_SendMouseReport(&USBD_Device, &mouse);
   while (1)
   {
     HAL_Delay(100);
 
-    USBD_HID_SendReport(&USBD_Device, HID_Buffer, 4);
+    //printf("send HID report\n");
+    USBD_HID_SendMouseReport(&USBD_Device, &mouse);
 
     /* Toggle LEDs */
     //BSP_LED_Toggle(LED1);
-    HAL_Delay(100);
+    HAL_Delay(800);
   }
 }
 
