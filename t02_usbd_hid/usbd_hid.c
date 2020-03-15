@@ -1,96 +1,82 @@
-/**
-  ******************************************************************************
-  * @file    usbd_hid.c
-  * @author  MCD Application Team
-  * @brief   This file provides the HID core functions.
-  *
-  * @verbatim
-  *
-  *          ===================================================================
-  *                                HID Class  Description
-  *          ===================================================================
-  *           This module manages the HID class V1.11 following the "Device Class Definition
-  *           for Human Interface Devices (HID) Version 1.11 Jun 27, 2001".
-  *           This driver implements the following aspects of the specification:
-  *             - The Boot Interface Subclass
-  *             - The Mouse protocol
-  *             - Usage Page : Generic Desktop
-  *             - Usage : Joystick
-  *             - Collection : Application
-  *
-  * @note     In HS mode and when the DMA is used, all variables and data structures
-  *           dealing with the DMA during the transaction process should be 32-bit aligned.
-  *
-  *
-  *  @endverbatim
-  *
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2015 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                      http://www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
 
-  /* BSPDependencies
-  - "stm32xxxxx_{eval}{discovery}{nucleo_144}.c"
-  - "stm32xxxxx_{eval}{discovery}_io.c"
-  EndBSPDependencies */
-
-/* Includes ------------------------------------------------------------------*/
 #include "usbd_hid.h"
 #include "usbd_ctlreq.h"
 #include "usbd_report.h"
 
-static uint8_t  USBD_HID_Init (USBD_HandleTypeDef *pdev,
-                               uint8_t cfgidx);
-
-static uint8_t  USBD_HID_DeInit (USBD_HandleTypeDef *pdev,
-                                 uint8_t cfgidx);
-
-static uint8_t  USBD_HID_Setup (USBD_HandleTypeDef *pdev,
-                                USBD_SetupReqTypedef *req);
-
-static uint8_t  *USBD_HID_GetFSCfgDesc (uint16_t *length);
-
-static uint8_t  *USBD_HID_GetHSCfgDesc (uint16_t *length);
-
-static uint8_t  *USBD_HID_GetOtherSpeedCfgDesc (uint16_t *length);
-
-static uint8_t  *USBD_HID_GetDeviceQualifierDesc (uint16_t *length);
-
-static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum);
 
 
-USBD_ClassTypeDef  USBD_HID =
+#define HID_EPIN_ADDR                 0x81U
+#define HID_EPIN_SIZE                 0x04U
+
+#define USB_HID_CONFIG_DESC_SIZ       34U
+#define USB_HID_DESC_SIZ              9U
+//#define HID_MOUSE_REPORT_DESC_SIZE    74U
+//#define HID_MOUSE_REPORT_DESC_SIZE    62U
+
+#define HID_DESCRIPTOR_TYPE           0x21U
+#define HID_REPORT_DESC               0x22U
+
+#ifndef HID_HS_BINTERVAL
+  #define HID_HS_BINTERVAL            0x07U
+#endif /* HID_HS_BINTERVAL */
+
+#ifndef HID_FS_BINTERVAL
+  #define HID_FS_BINTERVAL            0x0AU
+#endif /* HID_FS_BINTERVAL */
+
+#define HID_REQ_SET_PROTOCOL          0x0BU
+#define HID_REQ_GET_PROTOCOL          0x03U
+
+#define HID_REQ_SET_IDLE              0x0AU
+#define HID_REQ_GET_IDLE              0x02U
+
+#define HID_REQ_SET_REPORT            0x09U
+#define HID_REQ_GET_REPORT            0x01U
+
+
+// keyboard descrptor, from tmk_keyboard code, base on LUFA
+__ALIGN_BEGIN static uint8_t HID_Keyboard_ReportDesc[]  __ALIGN_END =
 {
-  USBD_HID_Init,
-  USBD_HID_DeInit,
-  USBD_HID_Setup,
-  NULL, /*EP0_TxSent*/
-  NULL, /*EP0_RxReady*/
-  USBD_HID_DataIn, /*DataIn*/
-  NULL, /*DataOut*/
-  NULL, /*SOF */
-  NULL,
-  NULL,
-  USBD_HID_GetHSCfgDesc, /* High Speed */
-  USBD_HID_GetFSCfgDesc, /* Full Speed */
-  USBD_HID_GetFSCfgDesc, /* Other Speed */
-  USBD_HID_GetDeviceQualifierDesc,
+    HID_RI_USAGE_PAGE(8, 0x01), /* Generic Desktop */
+    HID_RI_USAGE(8, 0x06), /* Keyboard */
+    HID_RI_COLLECTION(8, 0x01), /* Application */
+        HID_RI_USAGE_PAGE(8, 0x07), /* Key Codes */
+        HID_RI_USAGE_MINIMUM(8, 0xE0), /* Keyboard Left Control */
+        HID_RI_USAGE_MAXIMUM(8, 0xE7), /* Keyboard Right GUI */
+        HID_RI_LOGICAL_MINIMUM(8, 0x00),
+        HID_RI_LOGICAL_MAXIMUM(8, 0x01),
+        HID_RI_REPORT_COUNT(8, 0x08),
+        HID_RI_REPORT_SIZE(8, 0x01),
+        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+
+        HID_RI_REPORT_COUNT(8, 0x01),
+        HID_RI_REPORT_SIZE(8, 0x08),
+        HID_RI_INPUT(8, HID_IOF_CONSTANT),  /* reserved */
+
+        HID_RI_USAGE_PAGE(8, 0x08), /* LEDs */
+        HID_RI_USAGE_MINIMUM(8, 0x01), /* Num Lock */
+        HID_RI_USAGE_MAXIMUM(8, 0x05), /* Kana */
+        HID_RI_REPORT_COUNT(8, 0x05),
+        HID_RI_REPORT_SIZE(8, 0x01),
+        HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+        HID_RI_REPORT_COUNT(8, 0x01),
+        HID_RI_REPORT_SIZE(8, 0x03),
+        HID_RI_OUTPUT(8, HID_IOF_CONSTANT),
+
+        HID_RI_USAGE_PAGE(8, 0x07), /* Keyboard */
+        HID_RI_USAGE_MINIMUM(8, 0x00),
+        HID_RI_USAGE_MAXIMUM(8, 0xFF), /* Usage ID 0x00-0xFF */
+        HID_RI_LOGICAL_MINIMUM(8, 0x00),
+        HID_RI_LOGICAL_MAXIMUM(16, 0x00FF), /* needs 16 bit to indicate positive value */
+        HID_RI_REPORT_COUNT(8, 0x06),
+        HID_RI_REPORT_SIZE(8, 0x08),
+        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+    HID_RI_END_COLLECTION(0),
 };
 
-
 // mouse descrptor, from tmk_keyboard code, base on LUFA
-
 __ALIGN_BEGIN static uint8_t HID_MOUSE_ReportDesc[]  __ALIGN_END =
-{
+ {
     HID_RI_USAGE_PAGE(8, 0x01), /* Generic Desktop */
     HID_RI_USAGE(8, 0x02), /* Mouse */
     HID_RI_COLLECTION(8, 0x01), /* Application */
@@ -239,6 +225,8 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgHSDesc[USB_HID_CONFIG_DESC_SIZ]  __ALIG
   0x00,
   HID_HS_BINTERVAL,          /*bInterval: Polling Interval */
   /* 34 */
+
+
 };
 
 
@@ -525,48 +513,39 @@ static uint8_t  *USBD_HID_GetOtherSpeedCfgDesc (uint16_t *length)
   return USBD_HID_CfgFSDesc;
 }
 
-/**
-  * @brief  USBD_HID_DataIn
-  *         handle data IN Stage
-  * @param  pdev: device instance
-  * @param  epnum: endpoint index
-  * @retval status
-  */
 static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev,
                               uint8_t epnum)
 {
-
   /* Ensure that the FIFO is empty before a new transfer, this condition could
   be caused by  a new transfer before the end of the previous transfer */
   ((USBD_HID_HandleTypeDef *)pdev->pClassData)->state = HID_IDLE;
   return USBD_OK;
 }
 
-
-/**
-* @brief  DeviceQualifierDescriptor
-*         return Device Qualifier descriptor
-* @param  length : pointer data length
-* @retval pointer to descriptor buffer
-*/
 static uint8_t  *USBD_HID_GetDeviceQualifierDesc (uint16_t *length)
 {
   *length = sizeof (USBD_HID_DeviceQualifierDesc);
   return USBD_HID_DeviceQualifierDesc;
 }
 
-/**
-  * @}
-  */
 
+USBD_ClassTypeDef  USBD_HID =
+{
+  USBD_HID_Init,
+  USBD_HID_DeInit,
+  USBD_HID_Setup,
+  NULL, /*EP0_TxSent*/
+  NULL, /*EP0_RxReady*/
+  USBD_HID_DataIn, /*DataIn*/
+  NULL, /*DataOut*/
+  NULL, /*SOF */
+  NULL,
+  NULL,
+  USBD_HID_GetHSCfgDesc, /* High Speed */
+  USBD_HID_GetFSCfgDesc, /* Full Speed */
+  USBD_HID_GetFSCfgDesc, /* Other Speed */
+  USBD_HID_GetDeviceQualifierDesc,
+};
 
-/**
-  * @}
-  */
-
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

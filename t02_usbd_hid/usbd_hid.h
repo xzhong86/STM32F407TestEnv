@@ -27,34 +27,6 @@
 #include  "usbd_ioreq.h"
 
 
-#define HID_EPIN_ADDR                 0x81U
-#define HID_EPIN_SIZE                 0x04U
-
-#define USB_HID_CONFIG_DESC_SIZ       34U
-#define USB_HID_DESC_SIZ              9U
-//#define HID_MOUSE_REPORT_DESC_SIZE    74U
-//#define HID_MOUSE_REPORT_DESC_SIZE    62U
-
-#define HID_DESCRIPTOR_TYPE           0x21U
-#define HID_REPORT_DESC               0x22U
-
-#ifndef HID_HS_BINTERVAL
-  #define HID_HS_BINTERVAL            0x07U
-#endif /* HID_HS_BINTERVAL */
-
-#ifndef HID_FS_BINTERVAL
-  #define HID_FS_BINTERVAL            0x0AU
-#endif /* HID_FS_BINTERVAL */
-
-#define HID_REQ_SET_PROTOCOL          0x0BU
-#define HID_REQ_GET_PROTOCOL          0x03U
-
-#define HID_REQ_SET_IDLE              0x0AU
-#define HID_REQ_GET_IDLE              0x02U
-
-#define HID_REQ_SET_REPORT            0x09U
-#define HID_REQ_GET_REPORT            0x01U
-
 typedef enum
 {
   HID_IDLE = 0,
@@ -94,6 +66,22 @@ typedef struct {
 } __attribute__ ((packed)) report_mouse_t;
 
 static inline uint8_t USBD_HID_SendMouseReport(USBD_HandleTypeDef *pdev, report_mouse_t *report)
+{
+  return USBD_HID_SendReport(pdev, (uint8_t*)report, sizeof(*report));
+}
+
+
+#define KEYBOARD_REPORT_KEYS  6
+#define KEYBOARD_REPORT_SIZE  8
+typedef union {
+    uint8_t raw[KEYBOARD_REPORT_SIZE];
+    struct {
+        uint8_t mods;
+        uint8_t reserved;
+        uint8_t keys[KEYBOARD_REPORT_KEYS];
+    };
+} __attribute__ ((packed)) report_keyboard_t;
+static inline uint8_t USBD_HID_SendKeyboardReport(USBD_HandleTypeDef *pdev, report_keyboard_t *report)
 {
   return USBD_HID_SendReport(pdev, (uint8_t*)report, sizeof(*report));
 }
