@@ -14,6 +14,9 @@
 ## My board:
   * FK407M1 with stm32f407VET6 on board from taobao.com.
 
+## Test code:
+  * t01_gpio_uart:  Simple test for GPIO and UART
+  * t02_usbd_hid:   Simple test of USB HID Device, keyboard and mouse.
 
 ## Commands:
 
