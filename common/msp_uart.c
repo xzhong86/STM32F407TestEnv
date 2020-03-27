@@ -14,7 +14,8 @@ void initDAP_USART()
   UART_HandleTypeDef *uart;
   uart = &DAP_UartHandle;
   uart->Instance          = USART1;
-  uart->Init.BaudRate     = 9600;
+  //uart->Init.BaudRate     = 9600;
+  uart->Init.BaudRate     = 115200;
   uart->Init.WordLength   = UART_WORDLENGTH_8B;
   uart->Init.StopBits     = UART_STOPBITS_1;
   uart->Init.Parity       = UART_PARITY_NONE;
