@@ -3,9 +3,7 @@
 #include "usbd_ctlreq.h"
 #include "usbd_report.h"
 
-#define HID_DESCRIPTOR_TYPE           0x21U
-#define HID_REPORT_DESC               0x22U
-
+// for including teeny desc
 #define WEAK  /* nothing */
 #define USB_DEVICE_DESCRIPTOR_TYPE          USB_DESC_TYPE_DEVICE
 #define USB_CONFIGURATION_DESCRIPTOR_TYPE   USB_DESC_TYPE_CONFIGURATION
@@ -16,6 +14,9 @@
 
 #define USBD_HID_CfgFSDesc   UU_ConfigDescriptor
 
+
+#define HID_DESCRIPTOR_TYPE           0x21U
+#define HID_REPORT_DESC               0x22U
 
 #define HID_KEYBD_EPIN_ADDR           0x81U
 #define HID_KEYBD_EPIN_SIZE           0x08U

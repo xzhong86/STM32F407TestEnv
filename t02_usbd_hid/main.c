@@ -10,6 +10,20 @@ extern PCD_HandleTypeDef hpcd;
 
 int __io_putchar(int ch) { dap_putc_r(ch); }
 
+static void test_keyboard(report_keyboard_t *keybd) {
+  if (keybd->keys[0]) keybd->keys[0] = 0;
+  else                keybd->keys[0] = 0x10;
+  //printf("send HID Keyboard report\n");
+  USBD_HID_SendKeyboardReport(&USBD_Device, keybd);
+}
+static void test_mouse(report_mouse_t *mouse) {
+  mouse->buttons = 0;
+  mouse->x = 5;
+  mouse->y = 5;
+  //printf("send HID Mouse report\n");
+  USBD_HID_SendMouseReport(&USBD_Device, mouse);
+}
+
 int main(void)
 {
   uint8_t HID_Buffer[4];
@@ -34,20 +48,17 @@ int main(void)
   USBD_Start(&USBD_Device); 
 
   printf("finish init. go into loop.\n");
+
   report_keyboard_t keybd;
   memset(&keybd, 0, sizeof(keybd));
-  keybd.keys[0] = 0x10;
-  printf("send HID Keyboard report\n");
-  USBD_HID_SendKeyboardReport(&USBD_Device, &keybd);
+  report_mouse_t mouse;
+  memset(&mouse, 0, sizeof(mouse));
   while (1)
   {
     HAL_Delay(100);
 
-    //printf("send HID report\n");
-    //USBD_HID_SendMouseReport(&USBD_Device, &mouse);
-    if (keybd.keys[0]) keybd.keys[0] = 0;
-    else               keybd.keys[0] = 0x10;
-    USBD_HID_SendKeyboardReport(&USBD_Device, &keybd);
+    //test_mouse(&mouse);
+    test_keyboard(&keybd);
 
     /* Toggle LEDs */
     //BSP_LED_Toggle(LED1);
