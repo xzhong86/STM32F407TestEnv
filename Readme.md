@@ -42,3 +42,12 @@
   * `st-util -m` to start gdb server
   * `arm-none-eabi-gdb -ex 'target ext localhost:4242' gpio.elf` connect to target.
 
+
+## Test Cases Info
+
+  * t01_gpio_uart, basical GPIO and UART test
+  * t02_usbd_hid,  USB HID Device test, Mouse and Keyboard
+    * Projects/STM32F412G-Discovery/Applications/USB_Device/HID_Standalone
+  * t03_usbh_hid,  USB Host, connect HID Keyboard/Mouse
+    * Projects/STM324xG_EVAL/Applications/USB_Host/HID_Standalone
+
