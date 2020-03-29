@@ -13,10 +13,7 @@
 
 ## My board:
   * FK407M1 with stm32f407VET6 on board from taobao.com.
-
-## Test code:
-  * t01_gpio_uart:  Simple test for GPIO and UART
-  * t02_usbd_hid:   Simple test of USB HID Device, keyboard and mouse.
+  * USB Host board is published on [LCEDA](https://oshwhub.com/xzhong86/fk407m1_conv_board)
 
 ## Commands:
 
@@ -45,9 +42,9 @@
 
 ## Test Cases Info
 
-  * t01_gpio_uart, basical GPIO and UART test
-  * t02_usbd_hid,  USB HID Device test, Mouse and Keyboard
+  * t01_gpio_uart:   basical GPIO and UART test
+  * t02_usbd_hid:    USB HID Device test, Mouse and Keyboard
     * Projects/STM32F412G-Discovery/Applications/USB_Device/HID_Standalone
-  * t03_usbh_hid,  USB Host, connect HID Keyboard/Mouse
+  * t03_usbh_hid:    USB Host, connect HID Keyboard/Mouse
     * Projects/STM324xG_EVAL/Applications/USB_Host/HID_Standalone
 
