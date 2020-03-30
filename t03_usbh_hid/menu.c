@@ -109,6 +109,7 @@ void HID_MenuProcess(void)
     HID_SelectItem(DEMO_HID_menu, 0); 
     hid_demo.state = HID_DEMO_WAIT;
     hid_demo.select = 0;
+    printf("DEMO IDLE\n");
     break;        
     
   case HID_DEMO_WAIT:
@@ -136,6 +137,10 @@ void HID_MenuProcess(void)
         }
       }
     }
+    if (Appli_state == APPLICATION_READY) {
+      hid_demo.state = HID_DEMO_START;  
+      printf("DEMO WAIT to START\n");
+    }
     break; 
     
   case HID_DEMO_START:
@@ -145,11 +150,13 @@ void HID_MenuProcess(void)
       {
         hid_demo.keyboard_state = HID_KEYBOARD_IDLE; 
         hid_demo.state = HID_DEMO_KEYBOARD;
+        printf("goto DEMO KEYBOARD\n");
       }
       else if(USBH_HID_GetDeviceType(&hUSBHost) == HID_MOUSE)
       {
         hid_demo.mouse_state = HID_MOUSE_IDLE;  
         hid_demo.state = HID_DEMO_MOUSE;        
+        printf("goto DEMO MOUSE\n");
       }
     }
     else
@@ -168,6 +175,7 @@ void HID_MenuProcess(void)
   case HID_DEMO_MOUSE:
     if(Appli_state == APPLICATION_READY)
     {
+      //printf("DEMO MOUSE\n");
       //HID_MouseMenuProcess();
       USBH_MouseDemo(&hUSBHost);
     }
@@ -176,6 +184,7 @@ void HID_MenuProcess(void)
   case HID_DEMO_KEYBOARD:
     if(Appli_state == APPLICATION_READY)  
     {    
+      //printf("DEMO KEYBOARD\n");
       //HID_KeyboardMenuProcess();
       USBH_KeybdDemo(&hUSBHost);
     }   
@@ -265,8 +274,9 @@ static void USBH_KeybdDemo(USBH_HandleTypeDef *phost)
     if(c != 0)
     {
       //USR_KEYBRD_ProcessData(c);
-      printf("key:%c,", c);
-    }
+      printf("key:%c\n", c);
+    } else
+      printf("not ascii?\n");
   }
 }
 

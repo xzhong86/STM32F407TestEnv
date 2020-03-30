@@ -150,22 +150,26 @@ static void HID_InitApplication(void)
   */
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
 {
-  printf("USBH_UserProcess id=%d\n", id);
+  //printf("USBH_UserProcess id=%d\n", id);
   switch(id)
   { 
   case HOST_USER_SELECT_CONFIGURATION:
+    printf("USBH_UserProcess SELECT CONFIG\n");
     break;
     
   case HOST_USER_DISCONNECTION:
     Appli_state = APPLICATION_DISCONNECT;
+    printf("USBH_UserProcess APPLICATION DISCONNECT\n");
     break;
     
   case HOST_USER_CLASS_ACTIVE:
     Appli_state = APPLICATION_READY;
+    printf("USBH_UserProcess APPLICATION READY\n");
     break;
     
   case HOST_USER_CONNECTION:
     Appli_state = APPLICATION_START;
+    printf("USBH_UserProcess APPLICATION START\n");
     break;
     
   default:
