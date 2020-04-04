@@ -21,7 +21,7 @@ ifdef USE_CUBE_USBD
 endif
 ifdef USE_CUBE_USBH
   CUBE_SRC_DIR += $(CUBE_ROOT)/Middlewares/ST/STM32_USB_Host_Library/Core
-  CUBE_SRC_DIR += $(CUBE_ROOT)/Middlewares/ST/STM32_USB_Host_Library/Class/HID
+  #CUBE_SRC_DIR += $(CUBE_ROOT)/Middlewares/ST/STM32_USB_Host_Library/Class/HID
 endif
 
 cube_srcs  = $(foreach dir,$(CUBE_SRC_DIR),$(wildcard $(dir)/Src/*.c))

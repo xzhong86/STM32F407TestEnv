@@ -106,7 +106,6 @@ void HID_MenuProcess(void)
   switch(hid_demo.state)
   {
   case HID_DEMO_IDLE:
-    HID_SelectItem(DEMO_HID_menu, 0); 
     hid_demo.state = HID_DEMO_WAIT;
     hid_demo.select = 0;
     printf("DEMO IDLE\n");
@@ -117,7 +116,6 @@ void HID_MenuProcess(void)
     {
       prev_select = hid_demo.select;        
       
-      HID_SelectItem(DEMO_HID_menu, hid_demo.select & 0x7F); 
       /* Handle select item */
       if(hid_demo.select & 0x80)
       {
@@ -204,37 +202,6 @@ void HID_MenuProcess(void)
   }  
 }
 
-/**
-  * @brief  Manages the menu on the screen.
-  * @param  menu: Menu table
-  * @param  item: Selected item to be highlighted
-  * @retval None
-  */
-void HID_SelectItem(uint8_t **menu, uint8_t item)
-{
-        //BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
-  
-  switch(item)
-  {
-  case 0: 
-    //BSP_LCD_SetBackColor(LCD_COLOR_MAGENTA);
-    //BSP_LCD_DisplayStringAtLine( 18, menu [0]);
-    //BSP_LCD_SetBackColor(LCD_COLOR_BLUE);    
-    //BSP_LCD_DisplayStringAtLine(19,  menu [1]); 
-    break;
-    
-  case 1: 
-    //BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
-    //BSP_LCD_DisplayStringAtLine( 18, menu [0]);
-    //BSP_LCD_SetBackColor(LCD_COLOR_MAGENTA);    
-    //BSP_LCD_DisplayStringAtLine( 19, menu [1]);
-    //BSP_LCD_SetBackColor(LCD_COLOR_BLUE);   
-    break;   
-  }
-  //BSP_LCD_SetBackColor(LCD_COLOR_BLACK); 
-  
-}
-
 
 /**
   * @brief  Main routine for Mouse application
@@ -254,6 +221,7 @@ static void USBH_MouseDemo(USBH_HandleTypeDef *phost)
     printf("x=%d,y=%d,", mouse_info.x, mouse_info.y);
     for (int i = 0; i < 3; i++)
       printf("button%d=%d,",i,m_pinfo->buttons[i]);
+    printf("\n");
   }
 }
 

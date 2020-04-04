@@ -92,7 +92,9 @@ int main(void)
   
   /* Add Supported Class */
   printf("USBH RegisterClass.\n");
-  USBH_RegisterClass(&hUSBHost, USBH_HID_CLASS);
+  //USBH_RegisterClass(&hUSBHost, USBH_HID_CLASS);
+  USBH_RegisterClass(&hUSBHost, &HID_Class_Mouse);
+  //USBH_RegisterClass(&hUSBHost, &HID_Class_Keyboard);
   
   /* Start Host Process */
   printf("USBH Start.\n");
@@ -117,25 +119,6 @@ int main(void)
   */
 static void HID_InitApplication(void)
 {
-  /* Configure Key Button */
-  //BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);                
-  
-  /* Configure Joystick in EXTI mode */
-  //BSP_JOY_Init(JOY_MODE_EXTI);
-
-  /* Initialize the LCD */
-  //BSP_LCD_Init();
-  
-  /* Init the LCD Log module */
-  //LCD_LOG_Init();
-  
-#ifdef USE_USB_HS 
-        //LCD_LOG_SetHeader((uint8_t *)" USB OTG HS HID Host");
-#else
-        //LCD_LOG_SetHeader((uint8_t *)" USB OTG FS HID Host");
-#endif
-  
-        //LCD_UsrLog("USB Host library started.\n");
   printf("USB Host library started.\n");
   
   /* Start HID Interface */
@@ -158,18 +141,18 @@ static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
     break;
     
   case HOST_USER_DISCONNECTION:
+    printf("USBH_UserProcess DISCONNECT\n");
     Appli_state = APPLICATION_DISCONNECT;
-    printf("USBH_UserProcess APPLICATION DISCONNECT\n");
     break;
     
   case HOST_USER_CLASS_ACTIVE:
+    printf("USBH_UserProcess CLASS ACTIVE\n");
     Appli_state = APPLICATION_READY;
-    printf("USBH_UserProcess APPLICATION READY\n");
     break;
     
   case HOST_USER_CONNECTION:
+    printf("USBH_UserProcess CONNECTION\n");
     Appli_state = APPLICATION_START;
-    printf("USBH_UserProcess APPLICATION START\n");
     break;
     
   default:

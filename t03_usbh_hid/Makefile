@@ -7,8 +7,8 @@ USE_CUBE_USBH = yes
 MCU = STM32F407xx
 
 srcs  = main.c menu.c stm32f4xx_it.c usbh_conf.c
+srcs += $(wildcard usbh_*.c)
 #srcs += system_stm32f4xx.c
-#srcs += keyboard.c mouse.c
 
 #src_objs = $(patsubst %.c,objs/%.o,$(wildcard *.c))
 src_objs = $(patsubst %.c,objs/%.o,$(srcs))

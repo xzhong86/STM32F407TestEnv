@@ -39,6 +39,9 @@
   * `st-util -m` to start gdb server
   * `arm-none-eabi-gdb -ex 'target ext localhost:4242' gpio.elf` connect to target.
 
+### USB HID debug
+  * `lsusb -v` to show descriptor.
+  * `usbhid-dump -e all -s xxx:xxx` on Linux.
 
 ## Test Cases Info
 
