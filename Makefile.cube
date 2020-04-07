@@ -35,6 +35,25 @@ CUBE_INC += -I$(CUBE_CMSIS_ST)/Include
 CUBE_INC += -I$(CUBE_DRIVER)/CMSIS/Include
 CUBE_INC += -I$(CUBE_PROJECT)/Inc
 
+ifdef USE_CMSIS_RTOS
+  RTOS_SRC  = $(CUBE_ROOT)/Middlewares/Third_Party/FreeRTOS/Source
+  CUBE_INC += -I$(RTOS_SRC)/CMSIS_RTOS
+  CUBE_INC += -I$(RTOS_SRC)/include
+  rt_port = GCC/ARM_CM4F
+  #rt_port = GCC/ARM_CM4_MPU
+  CUBE_INC += -I$(RTOS_SRC)/portable/$(rt_port)
+  rtos_srcs  =
+  rtos_srcs += $(RTOS_SRC)/portable/$(rt_port)/port.c
+  rtos_srcs += $(RTOS_SRC)/portable/MemMang/heap_4.c
+  rtos_srcs += $(wildcard $(RTOS_SRC)/*.c)
+  rtos_srcs += $(wildcard $(RTOS_SRC)/CMSIS_RTOS/*.c)
+  cube_objs += $(patsubst %.c,cube_objs/%.o,$(notdir $(rtos_srcs)))
+  vpath  %.c $(RTOS_SRC)/CMSIS_RTOS
+  vpath  %.c $(RTOS_SRC)/portable/$(rt_port)
+  vpath  %.c $(RTOS_SRC)/portable/MemMang
+  vpath  %.c $(RTOS_SRC)
+endif
+
 
 cube_objs := $(filter-out %template.o, $(cube_objs))
 
