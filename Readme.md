@@ -50,4 +50,6 @@
     * Projects/STM32F412G-Discovery/Applications/USB_Device/HID_Standalone
   * t03_usbh_hid:    USB Host, connect HID Keyboard/Mouse
     * Projects/STM324xG_EVAL/Applications/USB_Host/HID_Standalone
+  * t04_rtos:        RTOS test
+    * Projects/STM324xG_EVAL/Applications/FreeRTOS/FreeRTOS_Queues
 
